@@ -1,0 +1,316 @@
+<!doctype html>
+
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, shrink-to-fit=no, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    <meta name="description" content="">
+    <title>Подписки «Клерка»</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style type="text/tailwindcss">
+      @layer components {
+        .switcher {
+          @apply relative  w-8  h-4  bg-zinc-200  rounded-lg  overflow-hidden  transition  before:w-3.5  before:h-3.5  before:bg-white  before:absolute  before:top-px  before:left-px  before:rounded-lg  before:shadow-md  before:transition;
+        }
+
+        input[type="checkbox"]:checked + .switcher {
+          @apply bg-blue-500  before:translate-x-4;
+        }
+
+        .switcher-xl {
+          @apply relative  w-12  h-6  bg-zinc-200  rounded-xl  overflow-hidden  transition  before:w-[22px]  before:h-[22px]  before:bg-white  before:absolute  before:top-px  before:left-px  before:rounded-xl  before:shadow-md  before:transition;
+        }
+
+        input[type="checkbox"]:checked + .switcher-xl {
+          @apply bg-blue-500  before:translate-x-6;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <header class="px-4">
+        <div class="flex  justify-center  mx-auto  max-w-screen-lg  pt-6  lg:pt-12">
+          <a href="/" aria-label="Клерк">
+            <svg viewBox="0 0 76 36" width="76" height="36" aria-hidden="true">
+              <path class="fill-current" d="M73.14 11c0 3.21-2.99 6-5.97 6v-6h-1.99v14h2v-6c2.98 0 5.96 2.8 5.96 6h2c0-3.94-2-6-4.76-7 2.76-1 4.75-3.5 4.75-7h-1.99ZM8.46 11c0 3.21-2.99 6-5.97 6v-6H.5v14h1.99v-6c2.99 0 5.97 2.8 5.97 6h2c0-3.94-2-6-4.76-7 2.76-1 4.75-3.5 4.75-7H8.46Zm8.18 1.95c0 .04-4.2 11.62-4.2 11.62l2.2.79 4.24-11.71c.11-.33.41-.32.51-.32.2 0 .45.06.55.35l4.23 11.68 2.2-.79-4.2-11.62A2.88 2.88 0 0 0 19.42 11a2.81 2.81 0 0 0-2.78 1.95ZM50.25 18a5 5 0 0 1 4.98-5 5 5 0 0 1 0 10 5 5 0 0 1-4.98-5Zm-1.99 0v16h2V22.51c.87 1.54 3.22 2.46 4.97 2.49a6.94 6.94 0 0 0 6.97-7 6.9 6.9 0 0 0-6.97-7 7 7 0 0 0-6.97 7Z"></path>
+              <path fill="#EF3124" d="m44.04 20.23 1.55 1.2s-.87 1.1-1.94 3.22a51.4 51.4 0 0 0-1.9 4.05l-.04.09c-1.95 3.74-5.1 5.43-8.42 4.5a6.82 6.82 0 0 1-4.13-3.23 6.67 6.67 0 0 1-.6-5.16L33.1 9.06a5.55 5.55 0 0 1 6.82-3.75 5.45 5.45 0 0 1 3.8 6.73v.02l-3.45 11.02v-.03a4.01 4.01 0 0 1-4.98 2.8A3.94 3.94 0 0 1 32.9 24c-.52-.92-.64-2-.33-3.07l3.15-10.75 1.89.53-3.15 10.75a2.1 2.1 0 0 0 .16 1.6c.25.45.67.77 1.22.92a2.05 2.05 0 0 0 2.55-1.46v-.02l3.45-11a3.52 3.52 0 0 0-2.45-4.33A3.57 3.57 0 0 0 35 9.6l-4.55 15.84a4.85 4.85 0 0 0 3.39 5.99c3.36.94 5.39-2.1 6.12-3.48.11-.29.7-1.7 1.94-4.15a22.69 22.69 0 0 1 2.15-3.56Z"></path>
+            </svg>
+          </a>
+        </div>
+
+        <nav class="flex  justify-center  mx-auto  max-w-screen-lg  pt-7">
+          <ul class="flex  flex-wrap  text-sm">
+            <li
+              v-for="({ name, link }) in breadcrumbs"
+              :key="`/${link}`"
+              class="after:content-['→']  after:text-zinc-300  after:mx-2  last:after:hidden">
+              <a
+                class="text-zinc-400  border-b  border-zinc-200  transition  hover:text-black  hover:border-zinc-400"
+                :class="{ 'hover:text-zinc-400  border-b-0': link === activeBreadcrumb}"
+                :href="`/${link}`">
+                {{ name }}
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        <div class="px-4">
+          <div class="flex  justify-center  mx-auto  max-w-screen-lg  pt-2  lg:pt-6">
+            <h1 class="text-3xl  text-center  font-medium  lg:text-6xl">
+              Подписки «Клерка»
+            </h1>
+          </div>
+
+          <nav class="flex  justify-center  mx-auto  max-w-screen-lg  pt-6">
+            <ul class="flex  gap-6  text-zinc-500">
+              <li
+                v-for="({ name, hash }) in tabs"
+                :key="hash">
+                <button
+                  class="pb-4  border-b-2  border-transparent  transition  hover:text-black"
+                  :class="{ 'border-blue-500  font-medium  text-blue-500  hover:text-blue-500': hash === activeTabs}"
+                  type="button"
+                  @click="activeTabs = hash">
+                  {{ name }}
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="lg:px-4">
+          <div class="mx-auto  max-w-screen-lg  bg-zinc-100  lg:rounded-2xl">
+            <div v-show="activeTabs === 'subscribes'">
+              <div class="px-4  pt-8  lg:px-12  lg:pt-12">
+                <div class="text-2xl  font-medium  lg:text-center  pb-4  lg:pb-6">
+                  Выберите рассылки, которые подходят именно вам
+                </div>
+
+                <form class="flex" action="#">
+                  <input class="grow  p-4  pr-12  rounded-lg  bg-white  -mr-8  outline-0  transition  focus:ring" type="email" name="email" autocomplete="email" inputmode="email" aria-label="Электронная почта" placeholder="Электронная почта" required>
+
+                  <button class="p-4  rounded-[28px]  bg-blue-500  text-white  transition  hover:bg-blue-400  lg:px-8" type="submit">
+                    <span class="hidden  lg:inline">Подписаться</span>
+
+                    <svg class="lg:hidden" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+                      <path class="fill-current" d="M7.35 17.36 12.69 12 7.35 6.64 8.99 5l7 7-7 7-1.64-1.64Z"></path>
+                    </svg>
+                  </button>
+                </form>
+
+                <label class="inline-flex  gap-2  items-center  pt-4  text-sm">
+                  <input
+                    class="appearance-none"
+                    ref="checkbox"
+                    type="checkbox"
+                    value="1"
+                    @change="subscribeAllToggle">
+
+                  <div class="switcher"></div>
+                  Подписаться на все рассылки
+                </label>
+              </div>
+
+              <div class="flex  flex-col  gap-6  px-4  pt-6  pb-8  lg:px-6  lg:pt-8  lg:pb-12  lg:grid  lg:grid-cols-2">
+                <div
+                  v-for="({ id, name, sup, icon, sign, features, count }) in subscribes"
+                  :key="id"
+                  class="relative  bg-white  rounded-2xl  px-4  py-6  transition-shadow  lg:flex  lg:gap-6  lg:px-6"
+                  :class="{ 'shadow-lg': checkedSubscribes.includes(id) }">
+                  <div class="flex  flex-col">
+                    <div class="text-sm  text-zinc-400">
+                      {{ sup }}
+                    </div>
+
+                    <h3 class="text-xl  font-medium">
+                      {{ name }}
+                    </h3>
+
+                    <div class="text-zinc-500  text-sm  pt-2  pb-4">
+                      {{ sign }}
+                    </div>
+
+                    <ul class="text-sm  pb-4">
+                      <li
+                        v-for="item in features"
+                        class="pl-6  pb-2  last:pb-0">
+                        <svg class="absolute  -ml-6  text-green-500" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                          <path class="fill-current" d="M5.08 11.62 1.93 8.47A.91.91 0 0 0 .65 9.76l4.43 4.44L15.36 3.92a.9.9 0 0 0-1.28-1.28l-9 8.98Z"></path>
+                        </svg>
+
+                        {{ item }}
+                      </li>
+                    </ul>
+
+                    <label class="inline-flex  gap-2  items-center  text-sm  mt-auto">
+                      <input
+                        class="appearance-none"
+                        type="checkbox"
+                        :value="id"
+                        v-model="checkedSubscribes">
+
+                      <div class="switcher-xl"></div>
+                      Уже получает {{ toDigitAmount(count) }} {{ toDeclensionWord(count, ['человек', 'человека', 'человек']) }}
+                    </label>
+                  </div>
+
+                  <div class="absolute  top-6  right-4  lg:static  lg:shrink-0">
+                    <img class="rounded-lg  w-10  lg:w-20" :src="`/media/${icon}`" width="80" height="80" alt="" loading="lazy">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-show="activeTabs === 'socials'">
+              <div class="px-4  py-8  lg:px-12  lg:py-12">
+                <div class="text-2xl  font-medium  lg:text-center">
+                  Соцсети
+                </div>
+              </div>
+            </div>
+
+            <div v-show="activeTabs === 'messangers'">
+              <div class="px-4  py-8  lg:px-12  lg:py-12">
+                <div class="text-2xl  font-medium  lg:text-center">
+                  Мессенджеры
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="lg:px-4">
+        <div class="flex  justify-center  mx-auto  max-w-screen-lg  py-12">
+          <svg viewBox="0 0 196 48" width="196" height="48" aria-hidden="true">
+            <path class="fill-current" d="M16.1 7.75H.93V4.5H16.1v3.25Zm3.7-3.5h3.97L37.5 40.16h-3.97L19.8 4.25Zm38.82 36.5H37.95v-3.43h20.67v3.43Zm3.09-16.85c0-3.42.45-6.71 1.35-9.86a28.93 28.93 0 0 1 4.09-8.59c1.8-2.57 3.68-4.39 5.62-5.45l.86 2.77c-2.2 1.7-4 4.29-5.42 7.77a34.05 34.05 0 0 0-2.3 11.7l-.02 1.93c0 5.85 1.06 10.92 3.18 15.22a18.16 18.16 0 0 0 4.56 6.04L72.77 48c-2-1.12-3.91-3-5.73-5.63-3.55-5.15-5.33-11.3-5.33-18.47ZM95.58 2.34l-3.56 1.2c1.16 2.43 3.8 9.64 4.53 12.29l3.6-1.26c-.78-2.6-3.55-10-4.57-12.23Zm20.52 2.98-4.25-1.21c-.92 6.97-3.74 14.42-7.4 19.12A37.41 37.41 0 0 1 86.3 35.6l3.2 3.26a40.6 40.6 0 0 0 18.1-13.46c3.79-5.02 6.29-11.67 7.67-17.44.19-.75.51-1.86.83-2.65Zm-33.41-.2-3.65 1.36c1.1 2 4.3 9.86 5.17 12.75l3.65-1.35A220.57 220.57 0 0 0 82.7 5.13Zm50.83 19c0 3.38-.44 6.62-1.33 9.73a28.46 28.46 0 0 1-4.04 8.56c-1.8 2.62-3.7 4.48-5.69 5.59l-.88-2.57c2.32-1.78 4.18-4.56 5.58-8.31a36.13 36.13 0 0 0 2.16-12.54v-.73c0-3.18-.33-6.13-.99-8.86a29.73 29.73 0 0 0-2.77-7.36 16.83 16.83 0 0 0-3.98-5.06l.88-2.57c1.99 1.1 3.88 2.95 5.67 5.54a28.51 28.51 0 0 1 4.04 8.57c.9 3.12 1.35 6.46 1.35 10.01Zm24.04 16.63h-20.68v-3.43h20.68v3.43Zm4.08-.59h-3.58l13.72-35.91h3.56l-13.7 35.91Zm33.43-32.41H179.9V4.5h15.17v3.25Z"></path>
+          </svg>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const { createApp } = Vue
+
+      const app = createApp({
+        data() {
+          return {
+            breadcrumbs: [
+              { name: 'Главная', link: '' },
+              { name: 'Сервисы', link: 'services' },
+              { name: 'Подписки', link: 'subscribes' },
+            ],
+            activeBreadcrumb: 'subscribes',
+            tabs: [
+              { name: 'Рассылки', hash: 'subscribes' },
+              { name: 'Соцсети', hash: 'socials' },
+              { name: 'Мессенджеры', hash: 'messangers' },
+            ],
+            activeTabs: 'subscribes',
+            subscribes: [
+              {
+                id: 'morning',
+                name: 'Утренний бухгалтер',
+                sup: 'Перед рассветом',
+                icon: 'subscribe-morning@2x.png',
+                sign: 'Самые важные новости и события за день. Кратко, по делу, структурировано.',
+                features: [
+                  'Новости для бухгалтеров, ИП и директора',
+                  'Подборка статей за день',
+                ],
+                count: 59342,
+              },
+              {
+                id: 'night',
+                name: 'Ночной бухгалтер',
+                sup: 'После заката',
+                icon: 'subscribe-night@2x.png',
+                sign: 'Самая краткая газета о налогах и бухучете в мире — современная рассылка для чтения.',
+                features: [
+                  'Анализ, оценка и только самое главное',
+                  'Лучшие комменты юзеров в обзоре',
+                ],
+                count: 37480,
+              },
+              {
+                id: 'discount',
+                name: 'Ножницы скидок',
+                sup: 'Раз в две недели',
+                icon: 'subscribe-discount@2x.png',
+                sign: 'Подборка самых выгодных и полезных спецпредложений от надежных компаний.',
+                features: [
+                  'Акции и скидки от лидеров рынка',
+                  'Те, кто подписался – экономят много денег',
+                ],
+                count: 92118,
+              },
+              {
+                id: 'webinar',
+                name: 'Чемодан вебинаров',
+                sup: 'По мере появления анонсов',
+                icon: 'subscribe-webinar@2x.png',
+                sign: 'Подборка с анонсами бесплатных вебинаров на самые топовые темы при участии экспертов.',
+                features: [
+                  'Никогда не пришлем платные вебинары',
+                  'Подборка топовых тем для вебинаров',
+                ],
+                count: 92082,
+              },
+            ],
+            checkedSubscribes: ['morning'],
+          }
+        },
+
+        watch: {
+          checkedSubscribes(value) {
+            if (value.length === this.subscribes.length) {
+              this.$refs.checkbox.checked = true
+            } else {
+              this.$refs.checkbox.checked = false
+            }
+          },
+        },
+
+        methods: {
+          toDigitAmount(value) {
+            return String(value).replace(/(\d)(?=(\d{3})+(\D|$))/g, '$1\u202F')
+          },
+
+          toDeclensionWord(number, words = []) {
+            const i = number % 10
+
+            if (i === 1) {
+              return words[0]
+            } else if (i >= 2 && i <= 4) {
+              return words[1]
+            } else {
+              return words[2]
+            }
+          },
+
+          subscribeAllToggle(event) {
+            const all = []
+
+            if (event.target.checked) {
+              for (let { id } of this.subscribes) {
+                all.push(id)
+              }
+            }
+
+            this.checkedSubscribes = all
+          },
+        },
+      })
+
+      app.mount('#app')
+    </script>
+  </body>
+</html>
